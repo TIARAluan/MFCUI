@@ -542,81 +542,44 @@ void CMFCUIDlg::OnBnClickedButton1Fresh()
 void CMFCUIDlg::OnBnClickedButton2Deal()
 {
 	// Local iconic variables
-	HObject  ho_SymbolXLDs1, ho_RegionAll;
-	HObject  ho_RegionBlank, ho_RegionOK, ho_Circle, ho_RegionSelect;
-	HObject  ho_RegionBlankUnion, ho_ImageReduced, ho_ImageScaled;
-	HObject  ho_SymbolXLDs2;
+	HObject  ho_Circle, ho_ImageReduced;
+	HObject  ho_SymbolXLDs1;
 
 	// Local control variables
-	HTuple  hv_WindowHandle, hv_DataCodeHandle, hv_ResultHandles;
-	HTuple  hv_DecodedDataStrings1, hv_Number1, hv_CircleD;
-	HTuple  hv_Blank, hv_IndexY, hv_IndexX, hv_ObjectIndex;
-	HTuple  hv_Area, hv_Row, hv_Col, hv_PointOrder, hv_Index;
-	HTuple  hv_DecodedDataStrings2, hv_Number2;
-	
-	//TupleGenConst(100, "null", &hv_Data);
-	
-	CreateDataCode2dModel("Data Matrix ECC 200", "default_parameters", "enhanced_recognition",
-		&hv_DataCodeHandle);
-	FindDataCode2d(ho_Image, &ho_SymbolXLDs1, hv_DataCodeHandle, HTuple(), HTuple(),
-		&hv_ResultHandles, &hv_DecodedDataStrings1);
-	CountObj(ho_SymbolXLDs1, &hv_Number1);
-	
+	HTuple  hv_CircleD, hv_Blank, hv_index, hv_DataCodeHandle;
+	HTuple  hv_IndexY, hv_IndexX, hv_ResultHandles, hv_DecodedDataStrings1;
+
+	//ReadImage(&ho_Image, "E:/1.jpg");
+	//bin_threshold (Image, Region)
 	hv_CircleD = 200;
 	hv_Blank = 40;
-
-	GenEmptyRegion(&ho_RegionAll);
-	GenEmptyRegion(&ho_RegionBlank);
-	GenEmptyRegion(&ho_RegionOK);
-
+	hv_index = HTuple();
+	CreateDataCode2dModel("Data Matrix ECC 200", "default_parameters", "enhanced_recognition",
+		&hv_DataCodeHandle);
 	for (hv_IndexY = 0; hv_IndexY <= 9; hv_IndexY += 1)
 	{
 		for (hv_IndexX = 0; hv_IndexX <= 9; hv_IndexX += 1)
 		{
-			GenCircle(&ho_Circle, 160 + ((hv_CircleD + hv_Blank)*hv_IndexY), 440 + ((hv_CircleD + hv_Blank)*hv_IndexX),
+			GenCircle(&ho_Circle, 205 + ((hv_CircleD + hv_Blank)*hv_IndexY), 278 + ((hv_CircleD + hv_Blank)*hv_IndexX),
 				hv_CircleD / 2);
-			ConcatObj(ho_Circle, ho_RegionAll, &ho_RegionAll);
+			ReduceDomain(ho_Image, ho_Circle, &ho_ImageReduced);
+			FindDataCode2d(ho_ImageReduced, &ho_SymbolXLDs1, hv_DataCodeHandle, HTuple(),
+				HTuple(), &hv_ResultHandles, &hv_DecodedDataStrings1);
+			DispObj(ho_SymbolXLDs1, m_htWindow);
+			TupleConcat(hv_index, hv_DecodedDataStrings1, &hv_index);
 		}
 	}
-	{
-		HTuple end_val27 = hv_Number1;
-		HTuple step_val27 = 1;
-		for (hv_ObjectIndex = 1; hv_ObjectIndex.Continue(end_val27, step_val27); hv_ObjectIndex += step_val27)
-		{
-			AreaCenterXld(ho_SymbolXLDs1, &hv_Area, &hv_Row, &hv_Col, &hv_PointOrder);
-			GetRegionIndex(ho_RegionAll, HTuple(hv_Row[hv_ObjectIndex - 1]).TupleInt(), HTuple(hv_Col[hv_ObjectIndex - 1]).TupleInt(),
-				&hv_Index);
-			SelectObj(ho_RegionAll, &ho_RegionSelect, hv_Index);
-			ConcatObj(ho_RegionSelect, ho_RegionOK, &ho_RegionOK);
-		}
-	}
-	Difference(ho_RegionAll, ho_RegionOK, &ho_RegionBlank);
-	Union1(ho_RegionBlank, &ho_RegionBlankUnion);
-	ReduceDomain(ho_Image, ho_RegionBlankUnion, &ho_ImageReduced);
-
-	ScaleImage(ho_ImageReduced, &ho_ImageScaled, 3, -50);
-	FindDataCode2d(ho_ImageScaled, &ho_SymbolXLDs2, hv_DataCodeHandle, HTuple(), HTuple(),
-		&hv_ResultHandles, &hv_DecodedDataStrings2);
-	CountObj(ho_SymbolXLDs2, &hv_Number2);
-	/*if (HDevWindowStack::IsOpen())
-		DispObj(ho_Image, HDevWindowStack::GetActive());
-	if (HDevWindowStack::IsOpen())
-		DispObj(ho_SymbolXLDs1, HDevWindowStack::GetActive());
-	if (HDevWindowStack::IsOpen())
-		DispObj(ho_SymbolXLDs2, HDevWindowStack::GetActive());*/
-	DispObj(ho_Image, m_htWindow);
-	DispObj(ho_SymbolXLDs1, m_htWindow);
-	DispObj(ho_SymbolXLDs2, m_htWindow);
+	
 	Bar_Total = hv_IndexY*hv_IndexX;
 	UpdateData(false);
-	Bar_Dealed = hv_Number1 + hv_Number2;
+	Bar_Dealed = hv_IndexY*hv_IndexX;
 	UpdateData(false);
 	//给表添加数据
-	for (int i = 1; i < hv_Number1; i++)
+	for (int i = 1; i < Bar_Total+1; i++)
 	{
 		CString str;
 		str.Format(_T("%d"), i);
-		CString temp = (CString)hv_DecodedDataStrings1[i - 1].S();
+		CString temp = (CString)hv_index[i-1].S();
 		int nRow = m_ListCtrl.InsertItem(i, str);
 		m_ListCtrl.SetItemText(nRow, 1, str);
 		m_ListCtrl.SetItemText(nRow, 2, temp);
