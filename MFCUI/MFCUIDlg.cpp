@@ -139,6 +139,15 @@ BOOL CMFCUIDlg::OnInitDialog()
 	init_list_control();
 	init_StatusBarr();
 	
+	//打开相机
+	OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
+		"[1] yuv (3264x2448)", "[1] HD USB Camera", 0, -1, &hv_AcqHandle);
+	SetFramegrabberParam(hv_AcqHandle, "brightness", -64);
+	SetFramegrabberParam(hv_AcqHandle, "gamma", 72);
+	SetFramegrabberParam(hv_AcqHandle, "exposure", -4);
+	GrabImageStart(hv_AcqHandle, -1);
+	GrabImage(&ho_Image, hv_AcqHandle);
+	Sleep(300);
 	HWND hImgWnd = GetDlgItem(IDC_STATIC_Image)->m_hWnd;
 	GetDlgItem(IDC_STATIC_Image)->GetClientRect(&rtWindow);
 	OpenWindow(rtWindow.left, rtWindow.top, rtWindow.Width(), rtWindow.Height(), (Hlong)hImgWnd, "visible", "", &m_htWindow);
@@ -502,30 +511,30 @@ void CMFCUIDlg::OnBnClickedButton2Start2()
 	//HTuple DirectShow, hv_AcqHandle;
 	HTuple width, height;
 	//打开相机
-	OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
+	/*OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
 		"[1] yuv (3264x2448)", "[1] HD USB Camera", 0, -1, &hv_AcqHandle);
 	SetFramegrabberParam(hv_AcqHandle, "brightness", -64);
 	SetFramegrabberParam(hv_AcqHandle, "gamma", 72);
 	SetFramegrabberParam(hv_AcqHandle, "exposure", -4);
 	GrabImageStart(hv_AcqHandle, -1);
 	GrabImage(&ho_Image, hv_AcqHandle);
-	Sleep(500);
+	Sleep(300);*/
 	GrabImage(&ho_Image, hv_AcqHandle);
-	//WriteImage(ho_Image, "jpg", 0, "E:/TestImage/grab1.jpg");
+	WriteImage(ho_Image, "jpg", 0, "E:/1.1.jpg");
 	GetImageSize(ho_Image, &height, &width);
 	SetWindowAttr("background_color", "black");
 	SetPart(m_htWindow, 0, 0, width, height);
 	if (HDevWindowStack::IsOpen())
 		HalconCpp::CloseWindow(m_htWindow);
 	DispObj(ho_Image, m_htWindow);
-	CloseFramegrabber(hv_AcqHandle);
+	//CloseFramegrabber(hv_AcqHandle);
 	
 }
 
 
 void CMFCUIDlg::OnBnClickedButtonExit()
 {
-	
+	CloseFramegrabber(hv_AcqHandle);
 	ExitProcess(0);
 }
 
@@ -546,13 +555,15 @@ void CMFCUIDlg::OnBnClickedButton2Deal()
 	HObject  ho_SymbolXLDs1;
 
 	// Local control variables
-	HTuple  hv_CircleD, hv_Blank, hv_index, hv_DataCodeHandle;
+	HTuple  hv_CircleD, hv_Blank, hv_row, hv_column, hv_index, hv_DataCodeHandle;
 	HTuple  hv_IndexY, hv_IndexX, hv_ResultHandles, hv_DecodedDataStrings1;
 
 	//ReadImage(&ho_Image, "E:/1.jpg");
 	//bin_threshold (Image, Region)
 	hv_CircleD = 200;
 	hv_Blank = 40;
+	hv_row = 150;
+	hv_column = 326;
 	hv_index = HTuple();
 	CreateDataCode2dModel("Data Matrix ECC 200", "default_parameters", "enhanced_recognition",
 		&hv_DataCodeHandle);
@@ -562,11 +573,15 @@ void CMFCUIDlg::OnBnClickedButton2Deal()
 		{
 			GenCircle(&ho_Circle, 205 + ((hv_CircleD + hv_Blank)*hv_IndexY), 278 + ((hv_CircleD + hv_Blank)*hv_IndexX),
 				hv_CircleD / 2);
+			SetTposition(m_htWindow, (hv_row - 120) + ((hv_CircleD + hv_Blank)*hv_IndexY),
+				(hv_column + 40) + ((hv_CircleD + hv_Blank)*hv_IndexX));
+			WriteString(m_htWindow, (hv_IndexX + (hv_IndexY * 10)) + 1);
 			ReduceDomain(ho_Image, ho_Circle, &ho_ImageReduced);
 			FindDataCode2d(ho_ImageReduced, &ho_SymbolXLDs1, hv_DataCodeHandle, HTuple(),
 				HTuple(), &hv_ResultHandles, &hv_DecodedDataStrings1);
 			DispObj(ho_SymbolXLDs1, m_htWindow);
 			TupleConcat(hv_index, hv_DecodedDataStrings1, &hv_index);
+			
 		}
 	}
 	
