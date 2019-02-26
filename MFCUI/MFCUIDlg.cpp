@@ -20,6 +20,7 @@ int MoCol;
 HObject  ho_Image;
 CRect rtWindow;
 HTuple m_htWindow;
+HTuple DirectShow, hv_AcqHandle;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -498,7 +499,7 @@ void CMFCUIDlg::OnCustomdrawList(NMHDR *pNMHDR, LRESULT *pResult)
 //采图
 void CMFCUIDlg::OnBnClickedButton2Start2()
 {
-	HTuple DirectShow, hv_AcqHandle;
+	//HTuple DirectShow, hv_AcqHandle;
 	HTuple width, height;
 	//打开相机
 	OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
@@ -507,7 +508,9 @@ void CMFCUIDlg::OnBnClickedButton2Start2()
 	SetFramegrabberParam(hv_AcqHandle, "gamma", 72);
 	SetFramegrabberParam(hv_AcqHandle, "exposure", -4);
 	GrabImageStart(hv_AcqHandle, -1);
-	GrabImageAsync(&ho_Image, hv_AcqHandle, -1);
+	GrabImage(&ho_Image, hv_AcqHandle);
+	Sleep(500);
+	GrabImage(&ho_Image, hv_AcqHandle);
 	//WriteImage(ho_Image, "jpg", 0, "E:/TestImage/grab1.jpg");
 	GetImageSize(ho_Image, &height, &width);
 	SetWindowAttr("background_color", "black");
