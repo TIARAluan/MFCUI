@@ -542,7 +542,7 @@ void CMFCUIDlg::OnBnClickedButton1Fresh()
 void CMFCUIDlg::OnBnClickedButton2Deal()
 {
 	// Local iconic variables
-	HObject  ho_Image, ho_SymbolXLDs1, ho_RegionAll;
+	HObject  ho_SymbolXLDs1, ho_RegionAll;
 	HObject  ho_RegionBlank, ho_RegionOK, ho_Circle, ho_RegionSelect;
 	HObject  ho_RegionBlankUnion, ho_ImageReduced, ho_ImageScaled;
 	HObject  ho_SymbolXLDs2;
@@ -598,12 +598,15 @@ void CMFCUIDlg::OnBnClickedButton2Deal()
 	FindDataCode2d(ho_ImageScaled, &ho_SymbolXLDs2, hv_DataCodeHandle, HTuple(), HTuple(),
 		&hv_ResultHandles, &hv_DecodedDataStrings2);
 	CountObj(ho_SymbolXLDs2, &hv_Number2);
-	if (HDevWindowStack::IsOpen())
+	/*if (HDevWindowStack::IsOpen())
 		DispObj(ho_Image, HDevWindowStack::GetActive());
 	if (HDevWindowStack::IsOpen())
 		DispObj(ho_SymbolXLDs1, HDevWindowStack::GetActive());
 	if (HDevWindowStack::IsOpen())
-		DispObj(ho_SymbolXLDs2, HDevWindowStack::GetActive());
+		DispObj(ho_SymbolXLDs2, HDevWindowStack::GetActive());*/
+	DispObj(ho_Image, m_htWindow);
+	DispObj(ho_SymbolXLDs1, m_htWindow);
+	DispObj(ho_SymbolXLDs2, m_htWindow);
 	Bar_Total = hv_IndexY*hv_IndexX;
 	UpdateData(false);
 	Bar_Dealed = hv_Number1 + hv_Number2;
