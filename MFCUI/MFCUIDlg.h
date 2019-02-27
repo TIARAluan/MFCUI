@@ -47,7 +47,7 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButton5Txt();
 	afx_msg void OnBnClickedButton3Image();
-	//afx_msg void OnBnClickedButton4Sql();
+	afx_msg void OnBnClickedButton4Sql();
 	BOOL PreTranslateMessage(MSG * pMsg);
 	afx_msg void OnBnClickedButtonChangecontext();
 	afx_msg void OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult);
