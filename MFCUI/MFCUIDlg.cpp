@@ -17,6 +17,7 @@ using namespace HalconCpp;
 //全局变量
 int MoRow;
 int MoCol;
+CTime t1;
 HObject  ho_Image;
 CRect rtWindow;
 HTuple m_htWindow,hv_Length;
@@ -136,6 +137,11 @@ BOOL CMFCUIDlg::OnInitDialog()
 	
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
+	//获取当前时间
+	
+	t1 = CTime::GetCurrentTime();
+
+	//初始化
     ListControlhwnd = GetDlgItem(IDC_LIST)->m_hWnd;
 	skinppSetNoSkinHwnd(ListControlhwnd);
 	init_Register();
@@ -300,13 +306,12 @@ void CMFCUIDlg::OnBnClickedButton3Image()
 void CMFCUIDlg::OnBnClickedButton5Txt()
 {
 	CString strFilePath;
-	CString strFilter = _T("txt文件(*.txt)|*.txt|xls文件(*.xls)|*.xls|所有文件(*.*)|*.*||");
-	CFileDialog dlg(FALSE, _T("txt|xls"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, strFilter, this);
+	CString strFilter = _T("txt文件(*.txt)|*.txt");
+	CFileDialog dlg(FALSE, _T("txt"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, strFilter, this);
 	dlg.m_ofn.lpstrTitle = _T("保存数据");
 	if (dlg.DoModal() != IDC_BUTTON5_Txt)
 	{
 		strFilePath = dlg.GetPathName();
-
 		FILE *fp;
 		const char* fpath = CStringA(strFilePath);
 		fopen_s(&fp, fpath, "w");
@@ -324,6 +329,23 @@ void CMFCUIDlg::OnBnClickedButton5Txt()
 		lvcol.mask = LVCF_TEXT;
 		lvcol.pszText = str_out;
 		lvcol.cchTextMax = 256;
+		fwrite("[盒子信息]\n", 1, strlen("[盒子信息]\n"), fp);
+		CString savetime=t1.Format("%Y-%m-%d %X");
+		fprintf_s(fp, "%s\t", "保存时间="+savetime);
+		fprintf_s(fp, "\n");
+		UpdateData(true);
+		fprintf_s(fp, "%s\t", "盒子编号=" + BoxNumber);
+		fprintf_s(fp, "\n");
+		UpdateData(true);
+		fprintf_s(fp, "%s\t", "盒子编号=" + SampleType);
+		fprintf_s(fp, "\n");
+		UpdateData(true);
+		fprintf_s(fp, "%s\t", "盒子编号=" + BoxDescription);
+		fprintf_s(fp, "\n");
+		UpdateData(true);
+		fprintf_s(fp, "%s\t", "盒子编号=" + BoxLocation);
+		fprintf_s(fp, "\n");
+		fwrite("[冻存管信息]\n", 1, strlen("[冻存管信息]\n"), fp);
 		while (m_ListCtrl.GetColumn(nColNUm, &lvcol))
 		{
 			nColNUm++;
@@ -381,9 +403,7 @@ void CMFCUIDlg::init_StatusBarr()
 
 	RepositionBars(AFX_IDW_CONTROLBAR_FIRST,AFX_IDW_CONTROLBAR_LAST, 0);
 	SetTimer(1, 1000, NULL);
-	CTime t1;
 	//CString str;
-	t1 = CTime::GetCurrentTime();
 	//str = hv_Length.S();
 	m_bar.SetPaneText(0, t1.Format("   %Y年%m月%d日   "));
 	////m_bar.SetPaneText(1, " 识别总数 100个   识别 ?个");
@@ -392,8 +412,8 @@ void CMFCUIDlg::init_StatusBarr()
 //Timer
 void CMFCUIDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	CTime t1;
-	t1 = CTime::GetCurrentTime();
+	/*CTime t1;
+	t1 = CTime::GetCurrentTime();*/
 	m_bar.SetPaneText(0, t1.Format("   %Y年%m月%d日   星期%w "));
 	CDialog::OnTimer(nIDEvent);
 }
@@ -546,8 +566,8 @@ void CMFCUIDlg::OnBnClickedButton2Deal()
 	hv_column = 204;
 	hv_index = HTuple();
 	m_ListCtrl.DeleteAllItems();
-	GrabImage(&ho_Image, hv_AcqHandle);
-	//ReadImage(&ho_Image, "E:/1.1.jpg");
+	//GrabImage(&ho_Image, hv_AcqHandle);
+	ReadImage(&ho_Image, "E:/1.1.jpg");
 	//WriteImage(ho_Image, "jpg", 0, "E:/1.1.jpg");
 	GetImageSize(ho_Image, &height, &width);
 	SetWindowAttr("background_color", "black");
