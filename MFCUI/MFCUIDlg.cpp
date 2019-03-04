@@ -308,7 +308,7 @@ void CMFCUIDlg::OnBnClickedButton5Txt()
 	CString strFilePath;
 	CString strFilter = _T("txt文件(*.txt)|*.txt");
 	CFileDialog dlg(FALSE, _T("txt"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, strFilter, this);
-	dlg.m_ofn.lpstrTitle = _T("保存数据");
+	dlg.m_ofn.lpstrTitle = _T("保存为TXT");
 	if (dlg.DoModal() != IDC_BUTTON5_Txt)
 	{
 		strFilePath = dlg.GetPathName();
@@ -337,25 +337,32 @@ void CMFCUIDlg::OnBnClickedButton5Txt()
 		fprintf_s(fp, "%s\t", "盒子编号=" + BoxNumber);
 		fprintf_s(fp, "\n");
 		UpdateData(true);
-		fprintf_s(fp, "%s\t", "盒子编号=" + SampleType);
+		fprintf_s(fp, "%s\t", "标本类型=" + SampleType);
 		fprintf_s(fp, "\n");
 		UpdateData(true);
-		fprintf_s(fp, "%s\t", "盒子编号=" + BoxDescription);
+		fprintf_s(fp, "%s\t", "盒子描述=" + BoxDescription);
 		fprintf_s(fp, "\n");
 		UpdateData(true);
-		fprintf_s(fp, "%s\t", "盒子编号=" + BoxLocation);
+		fprintf_s(fp, "%s\t", "盒子位置=" + BoxLocation);
 		fprintf_s(fp, "\n");
 		fwrite("[冻存管信息]\n", 1, strlen("[冻存管信息]\n"), fp);
 		while (m_ListCtrl.GetColumn(nColNUm, &lvcol))
 		{
-			nColNUm++;
-			fprintf_s(fp, "%s\t", lvcol.pszText);
+		
+				nColNUm++;
+				fprintf_s(fp, "%s\t", lvcol.pszText);
+			
 		}
+		/*for ( nColNUm = 0; nColNUm < 4; nColNUm++)
+		{
+			m_ListCtrl.GetColumn(nColNUm, &lvcol);
+			fprintf_s(fp, "%s\t", lvcol.pszText);
+		}*/
 		fprintf_s(fp, "\n", lvcol.pszText);
 		int nRow = m_ListCtrl.GetItemCount();
 		for (int i = 0; i < nRow; i++)
 		{
-			for (int j = 0; j < nColNUm; j++)
+			for (int j = 0; j < nColNUm-5; j++)
 			{
 				CString str_data = m_ListCtrl.GetItemText(i, j);
 				fprintf_s(fp, "%s\t", str_data);
@@ -369,7 +376,62 @@ void CMFCUIDlg::OnBnClickedButton5Txt()
 //保存为Excel
 void CMFCUIDlg::OnBnClickedButton5Excel()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	CString strFilePath;
+	CString Esavetime = t1.Format("%Y-%m-%d %X");
+	CString strFilter = _T("xls文件(*.xls)|*.xls");
+	CFileDialog dlg(FALSE, _T(".xls"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, strFilter, this);
+	dlg.m_ofn.lpstrTitle = _T("保存为Excel");
+	if (dlg.DoModal() != IDC_BUTTON5_Txt)
+	{
+		strFilePath = dlg.GetPathName();
+		FILE *fp;
+		const char* fpath = CStringA(strFilePath);
+		fopen_s(&fp, fpath, "w");
+		char str[1024];
+		if (fp == NULL)
+		{
+			printf("save error\n");
+			return;
+		}
+		int nHeadNum = m_ListCtrl.GetHeaderCtrl()->GetItemCount();
+		LVCOLUMN lvcol;
+		char str_out[256];
+		int nColNUm;
+		nColNUm = 0;
+		lvcol.mask = LVCF_TEXT;
+		lvcol.pszText = str_out;
+		lvcol.cchTextMax = 256;
+		while (m_ListCtrl.GetColumn(nColNUm, &lvcol))
+		{
+			nColNUm++;
+			fprintf_s(fp, "%s\t", lvcol.pszText);
+		}
+		fprintf_s(fp, "\n", lvcol.pszText);
+		for (int i = 1; i < hv_Length + 1; i++)
+		{
+			UpdateData(true);
+			m_ListCtrl.SetItemText(i-1, 4, BoxNumber);
+			UpdateData(true);
+			m_ListCtrl.SetItemText(i-1, 5, SampleType);
+			UpdateData(true);
+			m_ListCtrl.SetItemText(i-1, 6, BoxDescription);
+			UpdateData(true);
+			m_ListCtrl.SetItemText(i-1, 7, BoxLocation);
+			m_ListCtrl.SetItemText(i-1, 8, Esavetime);
+		}
+		int nRow = m_ListCtrl.GetItemCount();
+		for (int i = 0; i < nRow; i++)
+		{
+			for (int j = 0; j < nColNUm; j++)
+			{
+				CString str_data = m_ListCtrl.GetItemText(i, j);
+				fprintf_s(fp, "%s\t", str_data);
+			}
+			fprintf_s(fp, "\n");
+		}
+	
+		fclose(fp);
+	}
 }
 
 //初始化list control
@@ -382,6 +444,11 @@ void CMFCUIDlg::init_list_control()
 	m_ListCtrl.InsertColumn(1, _T("位置"));
 	m_ListCtrl.InsertColumn(2, _T("条码内容"));
 	m_ListCtrl.InsertColumn(3, _T("标本内容"));
+	m_ListCtrl.InsertColumn(4, _T("盒子序号"));
+	m_ListCtrl.InsertColumn(5, _T("标本类型"));
+	m_ListCtrl.InsertColumn(6, _T("盒子描述"));
+	m_ListCtrl.InsertColumn(7, _T("盒子位置"));
+	m_ListCtrl.InsertColumn(8, _T("保存时间"));
 	CRect rect;
 	m_ListCtrl.GetClientRect(rect);
 	m_ListCtrl.SetColumnWidth(0, 0.2*rect.Width());
@@ -612,28 +679,7 @@ void CMFCUIDlg::OnBnClickedButton2Deal()
 		m_ListCtrl.SetItemText(nRow, 2, temp);
 		m_ListCtrl.SetItemText(nRow, 3, _T(""));
 	}
-	/*if (100 == hv_Length)
-	{
-		for (int i = 1; i < 101; i++)
-		{
-			CString str;
-			str.Format(_T("%d"), i);
-			CString temp = (CString)hv_index[i - 1].S();
-			int nRow = m_ListCtrl.InsertItem(i, str);
-			m_ListCtrl.SetItemText(nRow, 1, str);
-			m_ListCtrl.SetItemText(nRow, 2, temp);
-			m_ListCtrl.SetItemText(nRow, 3, _T(""));
-		}
-	}
-	else
-	{
-		MessageBox("识别失败");
-		CloseFramegrabber(hv_AcqHandle);
-		ExitProcess(0);
-	}*/
-	
-	
-	
+
 }
 
 
