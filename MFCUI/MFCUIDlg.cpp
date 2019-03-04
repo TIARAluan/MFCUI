@@ -100,7 +100,7 @@ BEGIN_MESSAGE_MAP(CMFCUIDlg, CDialogEx)
 	//ON_BN_CLICKED(IDC_BUTTON4_Sql, &CMFCUIDlg::OnBnClickedButton4Sql)
 	ON_BN_CLICKED(IDC_BUTTON_ChangeContext, &CMFCUIDlg::OnBnClickedButtonChangecontext)
 	ON_NOTIFY(NM_CLICK, IDC_LIST, &CMFCUIDlg::OnNMClickList)
-	ON_BN_CLICKED(IDC_BUTTON2_Start2, &CMFCUIDlg::OnBnClickedButton2Start2)
+	//ON_BN_CLICKED(IDC_BUTTON2_Start2, &CMFCUIDlg::OnBnClickedButton2Start2)
 	ON_BN_CLICKED(IDC_BUTTON_Exit, &CMFCUIDlg::OnBnClickedButtonExit)
 	ON_BN_CLICKED(IDC_BUTTON1_Fresh, &CMFCUIDlg::OnBnClickedButton1Fresh)
 	ON_BN_CLICKED(IDC_BUTTON2_Deal, &CMFCUIDlg::OnBnClickedButton2Deal)
@@ -154,15 +154,20 @@ BOOL CMFCUIDlg::OnInitDialog()
 	TupleLength(hv_ValueList, &hv_Length1);
 	if (0== hv_Length1)
 	{
-		MessageBox("无法获取相机参数");
+		MessageBox("当前无相机设备");
 	}
-	else
-	{
-		for (int i = 0; i < hv_Length1; i++)
-		{
-			m_Device.AddString(hv_ValueList[i].S());
-		}
-	}
+
+	//打开相机
+	OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
+		"[" + (HTuple)hv_ValueList[1] + " yuv (3264x2448)", hv_ValueList, 0, -1, &hv_AcqHandle);
+	SetFramegrabberParam(hv_AcqHandle, "brightness", -64);
+	SetFramegrabberParam(hv_AcqHandle, "gamma", 76);
+	SetFramegrabberParam(hv_AcqHandle, "white_balance", 5500);
+	SetFramegrabberParam(hv_AcqHandle, "exposure", -4);
+	GrabImageStart(hv_AcqHandle, -1);
+	GrabImage(&ho_Image, hv_AcqHandle);
+	Sleep(300);
+	
 	HWND hImgWnd = GetDlgItem(IDC_STATIC_Image)->m_hWnd;
 	GetDlgItem(IDC_STATIC_Image)->GetClientRect(&rtWindow);
 	OpenWindow(rtWindow.left, rtWindow.top, rtWindow.Width(), rtWindow.Height(), (Hlong)hImgWnd, "visible", "", &m_htWindow);
@@ -491,7 +496,7 @@ BOOL CMFCUIDlg::PreTranslateMessage(MSG* pMsg)
 {
 	switch (pMsg->wParam)
 	{
-	case VK_F1: {OnBnClickedButton2Start2(); break; }
+	//case VK_F1: {OnBnClickedButton2Start2(); break; }
 	case VK_F2: {OnBnClickedButton2Deal(); break; }
 	case VK_F3: {OnBnClickedButton3Image(); break; }
 	//case VK_F4: {OnBnClickedButton4Sql(); break; }
@@ -571,37 +576,37 @@ void CMFCUIDlg::OnCustomdrawList(NMHDR *pNMHDR, LRESULT *pResult)
 
 
 //采图
-void CMFCUIDlg::OnBnClickedButton2Start2()
-{
-	
-	//打开相机
-	int indexD = m_Device.GetCurSel();
-	CString strDevice;
-	m_Device.GetLBText(indexD, strDevice);
-	/*CString str;
-	str.Format("choose%s", strDevice);
-	MessageBox(str);*/
-	try
-	{
-		OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
-			"["+ (HTuple)strDevice[1]+" yuv (3264x2448)", (HTuple)strDevice, 0, -1, &hv_AcqHandle);
-		SetFramegrabberParam(hv_AcqHandle, "brightness", -64);
-		SetFramegrabberParam(hv_AcqHandle, "gamma", 76);
-		SetFramegrabberParam(hv_AcqHandle, "white_balance", 5500);
-		SetFramegrabberParam(hv_AcqHandle, "exposure", -4);
-		GrabImageStart(hv_AcqHandle, -1);
-		GrabImage(&ho_Image, hv_AcqHandle);
-		Sleep(300);
-		MessageBox("相机打开成功");
-		//清空数据表中的数据
-		//m_ListCtrl.DeleteAllItems();
-	}
-	catch (const std::exception&)
-	{
-		MessageBox("相机打开失败");
-	}
-	
-}
+//void CMFCUIDlg::OnBnClickedButton2Start2()
+//{
+//	
+//	//打开相机
+//	int indexD = m_Device.GetCurSel();
+//	CString strDevice;
+//	m_Device.GetLBText(indexD, strDevice);
+//	/*CString str;
+//	str.Format("choose%s", strDevice);
+//	MessageBox(str);*/
+//	try
+//	{
+//		OpenFramegrabber("DirectShow", 1, 1, 0, 0, 0, 0, "default", 8, "gray", -1, "false",
+//			"["+ (HTuple)strDevice[1]+" yuv (3264x2448)", (HTuple)strDevice, 0, -1, &hv_AcqHandle);
+//		SetFramegrabberParam(hv_AcqHandle, "brightness", -64);
+//		SetFramegrabberParam(hv_AcqHandle, "gamma", 76);
+//		SetFramegrabberParam(hv_AcqHandle, "white_balance", 5500);
+//		SetFramegrabberParam(hv_AcqHandle, "exposure", -4);
+//		GrabImageStart(hv_AcqHandle, -1);
+//		GrabImage(&ho_Image, hv_AcqHandle);
+//		Sleep(300);
+//		MessageBox("相机打开成功");
+//		//清空数据表中的数据
+//		//m_ListCtrl.DeleteAllItems();
+//	}
+//	catch (const std::exception&)
+//	{
+//		MessageBox("相机打开失败");
+//	}
+//	
+//}
 
 //关闭相机退出
 void CMFCUIDlg::OnBnClickedButtonExit()

@@ -57,7 +57,7 @@ public:
 	afx_msg void OnCustomdrawList(NMHDR *pNMHDR, LRESULT *pResult);
 	CString m_ChangeContext;
 	
-	afx_msg void OnBnClickedButton2Start2();
+	//afx_msg void OnBnClickedButton2Start2();
 	afx_msg void OnBnClickedButtonExit();
 	afx_msg void OnBnClickedButton1Fresh();
 	afx_msg void OnBnClickedButton2Deal();
