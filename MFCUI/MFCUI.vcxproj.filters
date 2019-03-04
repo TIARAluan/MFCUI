@@ -68,5 +68,8 @@
     <Image Include="E:\Images\冻存管_1.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="E:\Images\icon\Qr.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

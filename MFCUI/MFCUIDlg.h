@@ -4,6 +4,7 @@
 
 #pragma once
 #include "afxcmn.h"
+#include "afxwin.h"
 
 
 
@@ -35,6 +36,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	HWND ListControlhwnd;
 	CString Row;
 	CString Column;
 	CString BoxNumber;
@@ -44,10 +46,11 @@ public:
 	CListCtrl m_ListCtrl;
 	afx_msg void init_list_control();
 	afx_msg void init_StatusBarr();
+	afx_msg void init_Register();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButton5Txt();
 	afx_msg void OnBnClickedButton3Image();
-	afx_msg void OnBnClickedButton4Sql();
+	//afx_msg void OnBnClickedButton4Sql();
 	BOOL PreTranslateMessage(MSG * pMsg);
 	afx_msg void OnBnClickedButtonChangecontext();
 	afx_msg void OnNMClickList(NMHDR *pNMHDR, LRESULT *pResult);
@@ -60,6 +63,8 @@ public:
 	afx_msg void OnBnClickedButton2Deal();
 	int Bar_Total;
 	int Bar_Dealed;
+	CComboBox m_Device;
+	afx_msg void OnBnClickedButton5Excel();
 };
 //定义一个状态栏结构体
 static UINT BASED_CODE indicators[] =

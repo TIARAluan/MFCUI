@@ -28,8 +28,8 @@
 #include <afxdtctl.h>           // MFC 对 Internet Explorer 4 公共控件的支持
 #endif
 #ifndef _AFX_NO_AFXCMN_SUPPORT
-//#include "SkinPPWTL.h"
-//#pragma comment(lib,"SkinPPWTL.lib")
+#include "SkinPPWTL.h"
+#pragma comment(lib,"SkinPPWTL.lib")
 #include <afxcmn.h>             // MFC 对 Windows 公共控件的支持
 #endif // _AFX_NO_AFXCMN_SUPPORT
 

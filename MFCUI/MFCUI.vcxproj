@@ -214,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="E:\Images\icon\q4.ico" />
+    <Image Include="E:\Images\icon\Qr.ico" />
     <Image Include="E:\Images\冻存管.ico" />
     <Image Include="E:\Images\冻存管_1.ico" />
     <Image Include="res\MFCUI.ico" />
